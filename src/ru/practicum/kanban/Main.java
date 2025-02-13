@@ -6,17 +6,18 @@ public class Main {
 
         TaskManager taskManager = new TaskManager();
 
-        Task task1 = new Task("Переезд", "Организовать переезд на новую квартиру");
-        Task task2 = new Task("Купить мебель", "Купить мебель для новой квартиры");
+        Task task1 = new Task("Переезд", "Организовать переезд на новую квартиру", Status.NEW);
+        Task task2 = new Task("Купить мебель", "Купить мебель для новой квартиры", Status.NEW);
 
         taskManager.createTask(task1);
         taskManager.createTask(task2);
 
-        Epic epic1 = new Epic("Организация праздника", "Организовать семейный праздник");
-        Subtask subtask1 = new Subtask("Пригласить гостей", "Составить список гостей", epic1.getId());
-        Subtask subtask2 = new Subtask("Заказать торт", "Выбрать торт и заказать его", epic1.getId());
-
+        Epic epic1 = new Epic("Организация праздника", "Организовать семейный праздник", Status.NEW);
         taskManager.createEpic(epic1);
+
+        Subtask subtask1 = new Subtask("Пригласить гостей", "Составить список гостей", epic1.getId(), Status.NEW);
+        Subtask subtask2 = new Subtask("Заказать торт", "Выбрать торт и заказать его", epic1.getId(), Status.NEW);
+
         taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
 

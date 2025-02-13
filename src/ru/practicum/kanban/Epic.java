@@ -5,11 +5,11 @@ import java.util.List;
 
 public class Epic extends Task {
 
-    private final List<Subtask> subtasks;
+    private List<Subtask> subtasks;
 
-    public Epic(String name, String description) {
-        super(name, description);
-        subtasks = new ArrayList<Subtask>();
+    public Epic(String name, String description, Status status) {
+        super(name, description, status);
+        subtasks = new ArrayList<>();
     }
 
     public void addSubtask(Subtask subtask) {
@@ -17,7 +17,15 @@ public class Epic extends Task {
     }
 
     public List<Subtask> getSubtasks() {
-        return subtasks;
+        return new ArrayList<>(subtasks);
+    }
+
+    public boolean removeSubtask(Subtask subtask) {
+        return subtasks.remove(subtask);
+    }
+
+    public void clearSubtasks() {
+        subtasks.clear();
     }
 
 }

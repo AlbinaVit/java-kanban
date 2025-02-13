@@ -3,17 +3,15 @@ package ru.practicum.kanban;
 import java.util.Objects;
 
 public class Task {
-    private static int idCounter = 0;
-    private final int id;
-    private final String name;
-    private final String description;
-    private Status status;
+    protected int id;
+    protected String name;
+    protected String description;
+    protected Status status;
 
-    public Task(String name, String description) {
-        this.id = idCounter++;
+    public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
-        this.status = Status.NEW;
+        this.status = status;
     }
 
     public int getId() {
@@ -34,6 +32,18 @@ public class Task {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

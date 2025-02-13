@@ -1,29 +1,37 @@
 package ru.practicum.kanban;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class TaskManager {
 
+    protected int idCounter = 0;
+
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
 
     public Task createTask(Task task) {
+        task.setId(idCounter++);
         tasks.put(task.getId(), task);
         return task;
     }
 
     public Subtask createSubtask(Subtask subtask) {
-        subtasks.put(subtask.getId(), subtask);
-        if (epics.containsKey(subtask.getEpicId())) {
-            epics.get(subtask.getEpicId()).addSubtask(subtask);
+        if (!epics.containsKey(subtask.getEpicId())) {
+            throw new IllegalArgumentException("Epic с ID " + subtask.getEpicId() + " не существует.");
         }
+        subtask.setId(idCounter++);
+        subtasks.put(subtask.getId(), subtask);
+        epics.get(subtask.getEpicId()).addSubtask(subtask);
+
         return subtask;
     }
 
     public Epic createEpic(Epic epic) {
+        epic.setId(idCounter++);
         epics.put(epic.getId(), epic);
         return epic;
     }
@@ -40,16 +48,46 @@ public class TaskManager {
         return List.copyOf(epics.values());
     }
 
+    public Task getTaskById(int id) {
+        return tasks.get(id);
+    }
+
+    public Subtask getSubtaskById(int id) {
+        return subtasks.get(id);
+    }
+
+    public Epic getEpicById(int id) {
+        return epics.get(id);
+    }
+
+    public ArrayList<Subtask> getSubtaskByEpic(int epicId) {
+        Epic epic = epics.get(epicId);
+        return epic != null ? new ArrayList<>(epic.getSubtasks()) : new ArrayList<>();
+    }
+
     public void updateTask(Task task) {
+        if (!tasks.containsKey(task.getId())) {
+            throw new IllegalArgumentException("Task с ID " + task.getId() + " не существует.");
+        }
         tasks.put(task.getId(), task);
     }
 
     public void updateSubtask(Subtask subtask) {
+        if (!subtasks.containsKey(subtask.getId())) {
+            throw new IllegalArgumentException("Subtask с ID " + subtask.getId() + " не существует.");
+        }
+        Subtask existingSubtask = subtasks.get(subtask.getId());
+        if (existingSubtask.getEpicId() != subtask.getEpicId()) {
+            throw new IllegalArgumentException("Subtask не может изменить Epic.");
+        }
         subtasks.put(subtask.getId(), subtask);
-        updateEpicStatus(subtask.getEpicId());
+        updateEpicStatus(existingSubtask.getEpicId());
     }
 
     public void updateEpic(Epic epic) {
+        if (!epics.containsKey(epic.getId())) {
+            throw new IllegalArgumentException("Epic с ID " + epic.getId() + " не существует.");
+        }
         epics.put(epic.getId(), epic);
     }
 
@@ -80,10 +118,23 @@ public class TaskManager {
     }
 
     public void deleteSubtask(int id) {
-        subtasks.remove(id);
+        Subtask subtask = subtasks.remove(id);
+        if (subtask != null) {
+            Epic epic = epics.get(subtask.getEpicId());
+            if (epic != null) {
+                epic.removeSubtask(subtask);
+                updateEpicStatus(epic.getId());
+            }
+        }
     }
 
     public void deleteEpic(int id) {
-        epics.remove(id);
+        Epic epic = epics.remove(id);
+        if (epic != null) {
+            for (Subtask subtask : epic.getSubtasks()) {
+                subtasks.remove(subtask.getId());
+            }
+            epic.clearSubtasks();
+        }
     }
 }
