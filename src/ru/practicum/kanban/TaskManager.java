@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class TaskManager {
 
-    protected int idCounter = 0;
+    private int idCounter = 1;
 
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
@@ -26,6 +26,7 @@ public class TaskManager {
         subtask.setId(idCounter++);
         subtasks.put(subtask.getId(), subtask);
         epics.get(subtask.getEpicId()).addSubtask(subtask);
+        updateEpicStatus(subtask.getEpicId());
 
         return subtask;
     }
@@ -77,8 +78,10 @@ public class TaskManager {
             throw new IllegalArgumentException("Subtask с ID " + subtask.getId() + " не существует.");
         }
         Subtask existingSubtask = subtasks.get(subtask.getId());
-        if (existingSubtask.getEpicId() != subtask.getEpicId()) {
-            throw new IllegalArgumentException("Subtask не может изменить Epic.");
+        Epic epic = epics.get(subtask.getEpicId());
+        if(epic != null) {
+            epic.removeSubtask(existingSubtask);
+            epic.addSubtask(subtask);
         }
         subtasks.put(subtask.getId(), subtask);
         updateEpicStatus(existingSubtask.getEpicId());
@@ -88,6 +91,9 @@ public class TaskManager {
         if (!epics.containsKey(epic.getId())) {
             throw new IllegalArgumentException("Epic с ID " + epic.getId() + " не существует.");
         }
+        Epic existingEpic = epics.get(epic.getId());
+        existingEpic.setName(epic.getName());
+        existingEpic.setDescription(epic.getDescription());
         epics.put(epic.getId(), epic);
     }
 
@@ -134,7 +140,13 @@ public class TaskManager {
             for (Subtask subtask : epic.getSubtasks()) {
                 subtasks.remove(subtask.getId());
             }
-            epic.clearSubtasks();
+            epics.remove(id);
         }
+    }
+
+    public void deleteAllTasks() {
+        tasks.clear();
+        subtasks.clear();
+        epics.clear();
     }
 }
