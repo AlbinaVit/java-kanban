@@ -40,7 +40,6 @@ public class Main {
         taskManager.updateSubtask(subtask2);
         taskManager.updateEpic(epic1);
 
-
         System.out.println("\nОбновленные задачи:");
         taskManager.getAllTasks().forEach(task -> System.out.println(task.getName() + " -  Статус " + task.getStatus()));
         System.out.println("\nОбновленные сабтаски:");
@@ -48,11 +47,31 @@ public class Main {
         System.out.println("\nОбновленные эпики:");
         taskManager.getAllEpics().forEach(epic -> System.out.println(epic.getName() + " -  Статус " + epic.getStatus()));
 
-        taskManager.deleteTask(task1.getId());
-        taskManager.deleteEpic(epic1.getId());
-
-        System.out.println("\nПосле удаления:");
-        taskManager.getAllTasks().forEach(task -> System.out.println(task.getName() + " -  Статус " + task.getStatus()));
+        taskManager.deleteAllSubtasks();
+        System.out.println("\nПосле удаления всех подзадач:");
+        System.out.println("\nЭпики:");
         taskManager.getAllEpics().forEach(epic -> System.out.println(epic.getName() + " -  Статус " + epic.getStatus()));
+        System.out.println("\nПодзадачи:");
+        taskManager.getAllSubtasks().forEach(subtask -> System.out.println(subtask.getName() + " -  Статус " + subtask.getStatus()));
+        System.out.println("\nЗадачи:");
+        taskManager.getAllTasks().forEach(task -> System.out.println(task.getName() + " -  Статус " + task.getStatus()));
+
+        taskManager.deleteAllEpics();
+        System.out.println("\nПосле удаления всех эпиков:");
+        System.out.println("\nЭпики:");
+        taskManager.getAllEpics().forEach(epic -> System.out.println(epic.getName() + " -  Статус " + epic.getStatus()));
+        System.out.println("\nПодзадачи:");
+        taskManager.getAllSubtasks().forEach(subtask -> System.out.println(subtask.getName() + " -  Статус " + subtask.getStatus()));
+        System.out.println("\nЗадачи:");
+        taskManager.getAllTasks().forEach(task -> System.out.println(task.getName() + " -  Статус " + task.getStatus()));
+
+        taskManager.deleteAllTasks();
+        System.out.println("\nПосле удаления всех задач:");
+        System.out.println("\nЭпики:");
+        taskManager.getAllEpics().forEach(epic -> System.out.println(epic.getName() + " -  Статус " + epic.getStatus()));
+        System.out.println("\nПодзадачи:");
+        taskManager.getAllSubtasks().forEach(subtask -> System.out.println(subtask.getName() + " -  Статус " + subtask.getStatus()));
+        System.out.println("\nЗадачи:");
+        taskManager.getAllTasks().forEach(task -> System.out.println(task.getName() + " -  Статус " + task.getStatus()));
     }
 }
