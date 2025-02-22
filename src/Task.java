@@ -1,5 +1,3 @@
-package ru.practicum.kanban;
-
 import java.util.Objects;
 
 public class Task {

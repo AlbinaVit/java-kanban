@@ -1,5 +1,3 @@
-package ru.practicum.kanban;
-
 public class Subtask extends Task {
 
     private int epicId;

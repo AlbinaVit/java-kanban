@@ -1,5 +1,3 @@
-package ru.practicum.kanban;
-
 import java.util.ArrayList;
 import java.util.List;
 
