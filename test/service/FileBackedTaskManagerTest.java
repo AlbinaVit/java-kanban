@@ -40,7 +40,6 @@ class FileBackedTaskManagerTest {
         manager.createEpic(epic);
         manager.createSubtask(new Subtask("Subtask 1", "Subtask Description 1", epic.getId(), Status.NEW));
 
-        manager.save();
         String expectedContent = "id,type,name,status,description,epic\n" +
         "1,TASK,Task 1,NEW,Description 1,\n" +
                 "2,TASK,Task 2,NEW,Description 2,\n" +

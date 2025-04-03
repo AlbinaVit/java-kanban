@@ -1,3 +1,4 @@
+import exseption.ManagerLoadExseption;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -10,7 +11,7 @@ import java.nio.file.Path;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ManagerLoadExseption {
         Path filePath = Files.createTempFile("test", ".csv");
         FileBackedTaskManager taskManager = new FileBackedTaskManager(filePath);
 

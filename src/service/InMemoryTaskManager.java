@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static utils.TypeTask.*;
+
 public class InMemoryTaskManager implements TaskManager {
 
     private int idCounter = 1;
@@ -227,5 +229,39 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    protected void fromString(String line) {
+        int maxId = 0;
+
+        String[] parts = line.split(",");
+        int id = Integer.parseInt(parts[0]);
+        String type = parts[1];
+        String name = parts[2];
+        Status status = Status.valueOf(parts[3]);
+        String description = parts[4];
+
+        if (type.equals(TASK.name())) {
+                Task task = new Task(name, description, status);
+                task.setId(id);
+                tasks.put(id, task);
+            } else if (type.equals(EPIC.name())) {
+                Epic epic = new Epic(name, description);
+                epic.setId(id);
+                epics.put(id, epic);
+            } else if (type.equals(SUBTASK.name())) {
+                int epicId = Integer.parseInt(parts[5]);
+                Subtask subtask = new Subtask(name, description, epicId, status);
+                subtask.setId(id);
+                subtasks.put(id, subtask);
+                if (epics.containsKey(epicId)) {
+                    epics.get(epicId).addSubtask(subtask);
+                    updateEpicStatus(epicId);
+                }
+            }
+            if (id > maxId) {
+                maxId = id;
+            }
+        idCounter = maxId + 1;
     }
 }

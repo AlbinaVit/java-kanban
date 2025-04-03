@@ -1,10 +1,10 @@
 package service;
 
+import exseption.ManagerLoadExseption;
 import exseption.ManagerSaveException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
-import utils.Status;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,12 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static utils.TypeTask.*;
-
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final Path filePath;
 
-    public FileBackedTaskManager(Path filePath) {
+    public FileBackedTaskManager(Path filePath) throws ManagerLoadExseption {
         this.filePath = filePath;
         loadFromFile();
     }
@@ -79,7 +77,25 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
-    void save() {
+    @Override
+    public void deleteAllTasks() {
+        super.deleteAllTasks();
+        save();
+    }
+
+    @Override
+    public void deleteAllSubtasks() {
+        super.deleteAllSubtasks();
+        save();
+    }
+
+    @Override
+    public void deleteAllEpics() {
+        super.deleteAllEpics();
+        save();
+    }
+
+    private void save() {
         try {
             StringBuilder sb = new StringBuilder();
             sb.append("id,type,name,status,description,epic\n");
@@ -113,58 +129,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    private void loadFromFile() {
+    private void loadFromFile() throws ManagerLoadExseption {
         try {
             List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
             if (lines.size() > 1) {
-                for (String line : lines.subList(1, lines.size())) {
-                    String[] parts = line.split(",");
-                    if (parts[1].equals(EPIC.name())) {
-                        fromString(line);
-                    }
-                }
-                for (String line : lines.subList(1, lines.size())) {
-                    String[] parts = line.split(",");
-                    if (parts[1].equals(SUBTASK.name())) {
-                        fromString(line);
-                    }
-                }
-                for (String line : lines.subList(1, lines.size())) {
-                    String[] parts = line.split(",");
-                    if (parts[1].equals(TASK.name())) {
-                        fromString(line);
-                    }
+                for (String line : lines) {
+                    fromString(line);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ManagerLoadExseption("Ошибка загрузки данных из файла: " + filePath, e);
         }
     }
 
-    private void fromString(String value) {
-        String[] parts = value.split(",");
-        int id = Integer.parseInt(parts[0]);
-        String type = parts[1];
-        String name = parts[2];
-        Status status = Status.valueOf(parts[3]);
-        String description = parts[4];
-        if (type.equals(TASK.name())) {
-            Task task = new Task(name, description, status);
-            task.setId(id);
-            createTask(task);
-        } else if (type.equals(EPIC.name())) {
-            Epic epic = new Epic(name, description);
-            epic.setId(id);
-            createEpic(epic);
-        } else if (type.equals(SUBTASK.name())) {
-            int epicId = Integer.parseInt(parts[5]);
-            Subtask subtask = new Subtask(name, description, epicId, status);
-            subtask.setId(id);
-            createSubtask(subtask);
-        }
-    }
-
-    public static FileBackedTaskManager loadFromFile(Path file) {
+    public static FileBackedTaskManager loadFromFile(Path file) throws ManagerLoadExseption {
         return new FileBackedTaskManager(file);
     }
 }
