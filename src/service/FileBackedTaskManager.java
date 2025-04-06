@@ -5,6 +5,7 @@ import exseption.ManagerSaveException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
+import utils.Status;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,10 +13,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static utils.TypeTask.*;
+
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final Path filePath;
 
-    public FileBackedTaskManager(Path filePath) throws ManagerLoadExseption {
+    public FileBackedTaskManager(Path filePath) {
         this.filePath = filePath;
         loadFromFile();
     }
@@ -129,20 +132,58 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    private void loadFromFile() throws ManagerLoadExseption {
+    private void loadFromFile() {
         try {
             List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
             if (lines.size() > 1) {
-                for (String line : lines) {
+                for (String line : lines.subList(1, lines.size())) {
                     fromString(line);
                 }
+                maxIdCount();
             }
         } catch (IOException e) {
             throw new ManagerLoadExseption("Ошибка загрузки данных из файла: " + filePath, e);
         }
     }
 
-    public static FileBackedTaskManager loadFromFile(Path file) throws ManagerLoadExseption {
+    public static FileBackedTaskManager loadFromFile(Path file) {
         return new FileBackedTaskManager(file);
+    }
+
+    private void fromString(String value) {
+        String[] parts = value.split(",");
+        int id = Integer.parseInt(parts[0]);
+        String type = parts[1];
+        String name = parts[2];
+        Status status = Status.valueOf(parts[3]);
+        String description = parts[4];
+        if (type.equals(TASK.name())) {
+            Task task = new Task(name, description, status);
+            task.setId(id);
+            addExistingTask(task);
+        } else if (type.equals(EPIC.name())) {
+            Epic epic = new Epic(name, description);
+            epic.setId(id);
+            addExistingEpic(epic);
+        } else if (type.equals(SUBTASK.name())) {
+            int epicId = Integer.parseInt(parts[5]);
+            Subtask subtask = new Subtask(name, description, epicId, status);
+            subtask.setId(id);
+            addExistingSubtask(subtask);
+        }
+    }
+
+    public void maxIdCount() throws IOException {
+        List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
+        int maxId = 0;
+
+        for (String line : lines.subList(1, lines.size())) {
+            String[] parts = line.split(",");
+            int id = Integer.parseInt(parts[0]);
+            if (id > maxId) {
+                maxId = id;
+            }
+        }
+        setIdCounter(maxId + 1);
     }
 }

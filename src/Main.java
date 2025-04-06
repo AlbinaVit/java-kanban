@@ -22,7 +22,7 @@ public class Main {
         deleteAllSubtasks(taskManager);
         deleteAllEpics(taskManager);
         deleteAllTasks(taskManager);
-        Files.deleteIfExists(filePath);
+//        Files.deleteIfExists(filePath);
     }
 
     private static void initializeTasks(FileBackedTaskManager taskManager) {
