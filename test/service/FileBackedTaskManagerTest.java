@@ -4,7 +4,6 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import utils.Status;
@@ -12,17 +11,19 @@ import utils.Status;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class FileBackedTaskManagerTest {
+class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     private Path tempFile;
-    private FileBackedTaskManager manager;
 
-    @BeforeEach
-    void setUp() throws Exception {
+    @Override
+    protected FileBackedTaskManager createTaskManager() throws Exception {
         tempFile = Files.createTempFile("test", ".csv");
-        manager = FileBackedTaskManager.loadFromFile(tempFile);
+        taskManager = new FileBackedTaskManager(tempFile);
+        return taskManager;
     }
 
     @AfterEach
@@ -34,11 +35,11 @@ class FileBackedTaskManagerTest {
     @DisplayName("Тестирование сохранения нескольких задач")
     void testSave() throws IOException {
 
-        manager.createTask(new Task("Task 1", "Description 1", Status.NEW));
-        manager.createTask(new Task("Task 2", "Description 2", Status.NEW));
+        taskManager.createTask(new Task("Task 1", "Description 1", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 0)));
+        taskManager.createTask(new Task("Task 2", "Description 2", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 10, 0)));
         Epic epic = new Epic("Epic 1", "Epic Description 1");
-        manager.createEpic(epic);
-        manager.createSubtask(new Subtask("Subtask 1", "Subtask Description 1", epic.getId(), Status.NEW));
+        taskManager.createEpic(epic);
+        taskManager.createSubtask(new Subtask("Subtask 1", "Subtask Description 1", epic.getId(), Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 0)));
 
         String expectedContent = "id,type,name,status,description,epic\n" +
                 "1,TASK,Task 1,NEW,Description 1,\n" +
@@ -52,43 +53,41 @@ class FileBackedTaskManagerTest {
     @Test
     @DisplayName("Тестирование загрузку и сохранения пустого файла")
     void saveAndLoadEmptyFile() {
-        assertEquals(0, manager.getAllTasks().size());
-        assertEquals(0, manager.getAllSubtasks().size());
-        assertEquals(0, manager.getAllEpics().size());
-
-        assertEquals(0, manager.getAllTasks().size());
+        assertEquals(0, taskManager.getAllTasks().size());
+        assertEquals(0, taskManager.getAllSubtasks().size());
+        assertEquals(0, taskManager.getAllEpics().size());
     }
 
     @Test
     @DisplayName("Загрузка и сохранение одной задачи")
     void saveAndLoadTasks() {
-        manager.createTask(new Task("Task1", "Description1", Status.NEW));
+        taskManager.createTask(new Task("Task1", "Description1", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 0)));
         Epic epic = new Epic("Epic1", "Description Epic1");
-        manager.createEpic(epic);
-        manager.createSubtask(new Subtask("Subtask1", "Description Subtask1", epic.getId(), Status.NEW));
+        taskManager.createEpic(epic);
+        taskManager.createSubtask(new Subtask("Subtask1", "Description Subtask1", epic.getId(), Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 10)));
 
-        assertEquals(1, manager.getAllTasks().size());
-        assertEquals(1, manager.getAllEpics().size());
-        assertEquals(1, manager.getAllSubtasks().size());
+        assertEquals(1, taskManager.getAllTasks().size());
+        assertEquals(1, taskManager.getAllEpics().size());
+        assertEquals(1, taskManager.getAllSubtasks().size());
     }
 
     @Test
     @DisplayName("Загрузка и сохранение нескольких задач")
     void saveAndLoadMultipleTasks() {
-        Task task1 = new Task("Task1", "Description1", Status.NEW);
-        manager.createTask(task1);
-        Task task2 = new Task("Task2", "Description2", Status.IN_PROGRESS);
-        manager.createTask(task2);
+        Task task1 = new Task("Task1", "Description1", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 0));
+        taskManager.createTask(task1);
+        Task task2 = new Task("Task2", "Description2", Status.IN_PROGRESS, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 10, 0));
+        taskManager.createTask(task2);
         Epic epic = new Epic("Epic1", "Description Epic1");
-        manager.createEpic(epic);
-        Subtask subtask1 = new Subtask("Subtask1", "Description Subtask1", epic.getId(), Status.NEW);
-        Subtask subtask2 = new Subtask("Subtask2", "Description Subtask2", epic.getId(), Status.DONE);
-        manager.createSubtask(subtask1);
-        manager.createSubtask(subtask2);
+        taskManager.createEpic(epic);
+        Subtask subtask1 = new Subtask("Subtask1", "Description Subtask1", epic.getId(), Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 11, 0));
+        Subtask subtask2 = new Subtask("Subtask2", "Description Subtask2", epic.getId(), Status.DONE, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 12, 0));
+        taskManager.createSubtask(subtask1);
+        taskManager.createSubtask(subtask2);
 
-        assertEquals(2, manager.getAllTasks().size());
-        assertEquals(1, manager.getAllEpics().size());
-        assertEquals(2, manager.getAllSubtasks().size());
+        assertEquals(2, taskManager.getAllTasks().size());
+        assertEquals(1, taskManager.getAllEpics().size());
+        assertEquals(2, taskManager.getAllSubtasks().size());
     }
 
 }
