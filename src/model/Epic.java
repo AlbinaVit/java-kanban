@@ -23,6 +23,13 @@ public class Epic extends Task {
     }
 
     public void updateEpicDetails() {
+        if (subtasks.isEmpty()) {
+            this.status = Status.NEW;
+            this.duration = Duration.ZERO;
+            this.startTime = null;
+            this.endTime = null;
+            return;
+        }
         Duration totalDuration = Duration.ZERO;
         LocalDateTime earliestStartTime = null;
         LocalDateTime latestEndTime = null;
@@ -78,6 +85,7 @@ public class Epic extends Task {
 
     public void clearSubtasks() {
         subtasks.clear();
+        updateEpicDetails();
     }
 
 }

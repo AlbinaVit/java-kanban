@@ -39,7 +39,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
         taskManager.createTask(new Task("Task 2", "Description 2", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 10, 0)));
         Epic epic = new Epic("Epic 1", "Epic Description 1");
         taskManager.createEpic(epic);
-        taskManager.createSubtask(new Subtask("Subtask 1", "Subtask Description 1", epic.getId(), Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 0)));
+        taskManager.createSubtask(new Subtask("Subtask 1", "Subtask Description 1", epic.getId(), Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 11, 0)));
 
         String expectedContent = "id,type,name,status,description,epic\n" +
                 "1,TASK,Task 1,NEW,Description 1,\n" +
@@ -64,7 +64,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
         taskManager.createTask(new Task("Task1", "Description1", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 0)));
         Epic epic = new Epic("Epic1", "Description Epic1");
         taskManager.createEpic(epic);
-        taskManager.createSubtask(new Subtask("Subtask1", "Description Subtask1", epic.getId(), Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 10)));
+        taskManager.createSubtask(new Subtask("Subtask1", "Description Subtask1", epic.getId(), Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 10, 10)));
 
         assertEquals(1, taskManager.getAllTasks().size());
         assertEquals(1, taskManager.getAllEpics().size());

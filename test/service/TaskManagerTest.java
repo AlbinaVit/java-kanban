@@ -61,7 +61,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void testGetAllTasks() {
         taskManager.createTask(new Task("model.Task 1", "Description 1", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 0)));
-        taskManager.createTask(new Task("model.Task 2", "Description 2", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 5)));
+        taskManager.createTask(new Task("model.Task 2", "Description 2", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 10, 5)));
 
         List<Task> tasks = taskManager.getAllTasks();
         assertEquals(2, tasks.size());
