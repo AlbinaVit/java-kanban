@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static utils.TypeTask.*;
@@ -121,14 +123,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         if (task instanceof Subtask) {
             Subtask subtask = (Subtask) task;
             return String.format("%d,SUBTASK,%s,%s,%s,%d",
-                    subtask.getId(), subtask.getName(), subtask.getStatus(), subtask.getDescription(), subtask.getEpicId());
+                    subtask.getId(), subtask.getName(), subtask.getStatus(), subtask.getDescription(),
+                    subtask.getEpicId(), subtask.getDuration().toMinutes(), subtask.getStartTime());
         } else if (task instanceof Epic) {
             Epic epic = (Epic) task;
             return String.format("%d,EPIC,%s,%s,%s,",
-                    epic.getId(), epic.getName(), epic.getStatus(), epic.getDescription());
+                    epic.getId(), epic.getName(), epic.getStatus(), epic.getDescription(),
+                    epic.getDuration().toMinutes(), epic.getStartTime());
         } else {
             return String.format("%d,TASK,%s,%s,%s,",
-                    task.getId(), task.getName(), task.getStatus(), task.getDescription());
+                    task.getId(), task.getName(), task.getStatus(), task.getDescription(),
+                    task.getDuration().toMinutes(), task.getStartTime());
         }
     }
 
@@ -157,17 +162,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = parts[2];
         Status status = Status.valueOf(parts[3]);
         String description = parts[4];
+        long duration = Long.parseLong(parts[5]);
+        LocalDateTime startTime = LocalDateTime.parse(parts[6]);
         if (type.equals(TASK.name())) {
-            Task task = new Task(name, description, status);
+            Task task = new Task(name, description, status, Duration.ofMinutes(duration), startTime);
             task.setId(id);
             addExistingTask(task);
         } else if (type.equals(EPIC.name())) {
             Epic epic = new Epic(name, description);
             epic.setId(id);
+            epic.setDuration(Duration.ofMinutes(duration));
+            epic.setStartTime(startTime);
             addExistingEpic(epic);
         } else if (type.equals(SUBTASK.name())) {
             int epicId = Integer.parseInt(parts[5]);
-            Subtask subtask = new Subtask(name, description, epicId, status);
+            Subtask subtask = new Subtask(name, description, epicId, status, Duration.ofMinutes(duration), startTime);
             subtask.setId(id);
             addExistingSubtask(subtask);
         }

@@ -8,6 +8,8 @@ import utils.Status;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
 
@@ -22,12 +24,12 @@ public class Main {
         deleteAllSubtasks(taskManager);
         deleteAllEpics(taskManager);
         deleteAllTasks(taskManager);
-//        Files.deleteIfExists(filePath);
+        Files.deleteIfExists(filePath);
     }
 
     private static void initializeTasks(FileBackedTaskManager taskManager) {
-        Task task1 = new Task("Организация праздника", "Организовать переезд на новую квартиру", Status.NEW);
-        Task task2 = new Task("Купить мебель", "Купить мебель для новой квартиры", Status.NEW);
+        Task task1 = new Task("Организация праздника", "Организовать переезд на новую квартиру", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 9, 0));
+        Task task2 = new Task("Купить мебель", "Купить мебель для новой квартиры", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 10, 0));
 
         taskManager.createTask(task1);
         taskManager.createTask(task2);
@@ -36,8 +38,8 @@ public class Main {
         taskManager.createEpic(epic1);
         System.out.println("Создан эпик: " + epic1.getName());
 
-        Subtask subtask1 = new Subtask("Пригласить гостей", "Составить список гостей", epic1.getId(), Status.NEW);
-        Subtask subtask2 = new Subtask("Заказать торт", "Выбрать торт и заказать его", epic1.getId(), Status.NEW);
+        Subtask subtask1 = new Subtask("Пригласить гостей", "Составить список гостей", epic1.getId(), Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 2, 9, 0));
+        Subtask subtask2 = new Subtask("Заказать торт", "Выбрать торт и заказать его", epic1.getId(), Status.NEW, Duration.ofHours(1), LocalDateTime.of(2025, 02, 1, 11, 0));
 
         taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
@@ -56,9 +58,9 @@ public class Main {
     }
 
     private static void updateTasks(FileBackedTaskManager taskManager) {
-        Task task1 = taskManager.getAllTasks().get(0); // Предполагаем, что первая задача это task1
-        Subtask subtask1 = taskManager.getAllSubtasks().get(0); // Предполагаем, что первая подзадача это subtask1
-        Subtask subtask2 = taskManager.getAllSubtasks().get(1); // Предполагаем, что вторая подзадача это subtask2
+        Task task1 = taskManager.getAllTasks().get(0);
+        Subtask subtask1 = taskManager.getAllSubtasks().get(0);
+        Subtask subtask2 = taskManager.getAllSubtasks().get(1);
 
         task1.setStatus(Status.IN_PROGRESS);
         taskManager.updateTask(task1);
@@ -66,7 +68,7 @@ public class Main {
         taskManager.updateSubtask(subtask1);
         subtask2.setStatus(Status.DONE);
         taskManager.updateSubtask(subtask2);
-        taskManager.updateEpic(taskManager.getAllEpics().get(0)); // Обновляем первый эпик
+        taskManager.updateEpic(taskManager.getAllEpics().get(0));
     }
 
     private static void displayUpdatedTasks(FileBackedTaskManager taskManager) {
