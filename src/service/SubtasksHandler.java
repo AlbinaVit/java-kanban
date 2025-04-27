@@ -5,14 +5,13 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import model.Subtask;
 
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
-        private final TaskManager taskManager;
-        private static final Gson gson = HttpTaskServer.getGson();
+    private final TaskManager taskManager;
+    private static final Gson gson = HttpTaskServer.getGson();
 
     public SubtasksHandler(TaskManager taskManager) {
         this.taskManager = taskManager;

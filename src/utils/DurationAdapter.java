@@ -10,7 +10,7 @@ import java.time.Duration;
 public class DurationAdapter extends TypeAdapter<Duration> {
     @Override
     public void write(JsonWriter out, Duration duration) throws IOException {
-        if(duration != null) {
+        if (duration != null) {
             out.value(duration.getSeconds());
         } else {
             Duration.ofSeconds(0L);

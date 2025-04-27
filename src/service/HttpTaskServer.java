@@ -53,7 +53,7 @@ public class HttpTaskServer {
         server.createContext("/history", new HistoryHandler(taskManager));
         server.createContext("/prioritized", new PrioritizedHandler(taskManager));
     }
-    
+
     public static void main(String[] args) throws IOException {
         TaskManager manager = Managers.getDefault();
         HttpTaskServer server = new HttpTaskServer(manager);

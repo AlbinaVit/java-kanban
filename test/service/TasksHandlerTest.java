@@ -16,7 +16,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 class TasksHandlerTest {
 
     TaskManager manager = new InMemoryTaskManager();
@@ -94,5 +96,5 @@ class TasksHandlerTest {
         Task retrievedTask = gson.fromJson(response.body(), Task.class);
         assertEquals("Test Task", retrievedTask.getName(), "Некорректное имя задачи");
     }
-  
+
 }
