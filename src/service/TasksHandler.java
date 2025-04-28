@@ -8,6 +8,7 @@ import model.Task;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 public class TasksHandler extends BaseHttpHandler implements HttpHandler {
     private final TaskManager taskManager;
@@ -18,9 +19,8 @@ public class TasksHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     public void handle(HttpExchange exchange) throws IOException {
+        String[] pathParts = exchange.getRequestURI().getPath().split("/");
         try {
-            String path = exchange.getRequestURI().getPath();
-            String[] pathParts = path.split("/");
             switch (exchange.getRequestMethod()) {
                 case "GET":
                     if (pathParts.length == 2) {
@@ -69,13 +69,36 @@ public class TasksHandler extends BaseHttpHandler implements HttpHandler {
 
         if (taskManager instanceof InMemoryTaskManager) {
             InMemoryTaskManager manager = (InMemoryTaskManager) taskManager;
-            if (manager.checkForTimeIntersection(task)) {
-                sendHasInteractions(exchange);
-                return;
+            if (task.getId() == 0) {
+                if (manager.checkForTimeIntersection(task)) {
+                    sendHasInteractions(exchange);
+                    return;
+                }
+                Task createdTask = manager.createTask(task);
+                sendTextCreate(exchange, gson.toJson(Map.of("id", createdTask.getId())));
+            } else {
+                try {
+                    manager.updateTask(task);
+                    sendText(exchange, gson.toJson(Map.of("id", task.getId())));
+                } catch (IllegalArgumentException e) {
+                    sendHasInteractions(exchange);
+                }
+            }
+        } else {
+            if (task.getId() == 0) {
+                Task createdTask = taskManager.createTask(task);
+                sendText(exchange, gson.toJson(Map.of("id", createdTask.getId())));
+                exchange.sendResponseHeaders(201, 0);
+            } else {
+                try {
+                    taskManager.updateTask(task);
+                    sendText(exchange, gson.toJson(Map.of("id", task.getId())));
+                    exchange.sendResponseHeaders(200, 0);
+                } catch (IllegalArgumentException e) {
+                    sendHasInteractions(exchange);
+                }
             }
         }
-        taskManager.createTask(task);
-        exchange.sendResponseHeaders(201, -1);
     }
 
     private void handleDelete(HttpExchange exchange, int id) throws IOException {

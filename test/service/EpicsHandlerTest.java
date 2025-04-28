@@ -30,7 +30,8 @@ class EpicsHandlerTest {
     @BeforeEach
     public void setUp() throws IOException {
         manager.deleteAllTasks();
-        manager.deleteAllEpics(); // Убедитесь, что все эпики удалены перед началом теста
+        manager.deleteAllEpics();
+        manager.deleteAllSubtasks();
         taskServer.start();
     }
 

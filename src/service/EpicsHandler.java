@@ -9,6 +9,7 @@ import model.Subtask;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
     private final TaskManager taskManager;
@@ -18,10 +19,10 @@ public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
         this.taskManager = taskManager;
     }
 
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String path = exchange.getRequestURI().getPath();
-        String[] pathParts = path.split("/");
+        String[] pathParts = exchange.getRequestURI().getPath().split("/");
 
         try {
             switch (exchange.getRequestMethod()) {
@@ -81,8 +82,18 @@ public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
     private void handlePost(HttpExchange exchange) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         Epic epic = gson.fromJson(body, Epic.class);
-        taskManager.createEpic(epic);
-        exchange.sendResponseHeaders(201, -1);
+
+        if (epic.getId() == 0) {
+            Epic createdEpic = taskManager.createEpic(epic);
+            sendTextCreate(exchange, gson.toJson(Map.of("id", createdEpic.getId())));
+        } else {
+            try {
+                taskManager.updateEpic(epic);
+                sendText(exchange, gson.toJson(Map.of("id", epic.getId())));
+            } catch (IllegalArgumentException e) {
+                sendNotFound(exchange);
+            }
+        }
     }
 
     private void handleDelete(HttpExchange exchange, int id) throws IOException {
