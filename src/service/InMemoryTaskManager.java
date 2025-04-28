@@ -4,7 +4,6 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 import utils.Managers;
-import utils.Status;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -212,7 +211,6 @@ public class InMemoryTaskManager implements TaskManager {
                 prioritizedTasks.remove(subtask);
             }
             epic.clearSubtasks();
-            updateEpicStatus(epic.getId());
         }
         subtasks.clear();
 
@@ -282,22 +280,4 @@ public class InMemoryTaskManager implements TaskManager {
         });
     }
 
-    private void updateEpicStatus(int epicId) {
-        Epic epic = epics.get(epicId);
-        if (epic == null) return;
-        List<Subtask> epicSubtasks = epic.getSubtasks();
-        if (epicSubtasks.isEmpty()) {
-            epic.setStatus(Status.NEW);
-            return;
-        }
-        boolean allDone = epicSubtasks.stream().allMatch(subtask -> subtask.getStatus() == Status.DONE);
-        boolean anyInProgress = epicSubtasks.stream().anyMatch(subtask -> subtask.getStatus() == Status.IN_PROGRESS);
-        if (allDone) {
-            epic.setStatus(Status.DONE);
-        } else if (anyInProgress) {
-            epic.setStatus(Status.IN_PROGRESS);
-        } else {
-            epic.setStatus(Status.NEW);
-        }
-    }
 }
